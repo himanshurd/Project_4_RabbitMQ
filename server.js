@@ -1,11 +1,32 @@
 const express = require('express')
 const morgan = require('morgan')
+const multer = require('multer')
+const crypto = require('crypto');
 
 const api = require('./api')
 const { connectToDb } = require('./lib/mongo')
 
 const app = express()
 const port = process.env.PORT || 8000
+
+const imageTypes = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png'
+};
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: `${__dirname}/uploads`,
+    filename: (req, file, callback) => {
+      const filename =
+        crypto.pseudoRandomBytes(16).toString('hex');
+      const extension = photoTypes[file.mimetype];
+      callback(null, `${filename}.${extension}`);
+    }
+   }),
+   fileFilter: (req, file, callback) => {
+    callback(null, !!photoTypes[file.mimetype]);
+   }
+});
 
 /*
  * Morgan is a popular logger.
